@@ -12,6 +12,44 @@ public class Box
     private Dictionary<Vector3Int, Cell> voxels = new Dictionary<Vector3Int, Cell>();
     private HashSet<Vector3Int> minePositions = new HashSet<Vector3Int>();
 
+
+    // Define offsets for neighboring cells in each direction, including diagonals
+    private static readonly Vector3Int[] offsets = new Vector3Int[]
+    {
+        // Neighbors in X and Y directions
+        new Vector3Int(-1, 0, 0),   // Negative X
+        new Vector3Int(1, 0, 0),    // Positive X
+        new Vector3Int(0, -1, 0),   // Negative Y
+        new Vector3Int(0, 1, 0),    // Positive Y
+        // Diagonal neighbors in X and Y directions
+        new Vector3Int(-1, -1, 0),  // Diagonal: Negative X, Negative Y
+        new Vector3Int(-1, 1, 0),   // Diagonal: Negative X, Positive Y
+        new Vector3Int(1, -1, 0),   // Diagonal: Positive X, Negative Y
+        new Vector3Int(1, 1, 0),    // Diagonal: Positive X, Positive Y
+        // Neighbors in Z direction
+        new Vector3Int(0, 0, -1),   // Negative Z
+        new Vector3Int(0, 0, 1),    // Positive Z
+        // Diagonal neighbors in Z direction
+        new Vector3Int(0, -1, -1),  // Diagonal: Negative Z, Negative Y
+        new Vector3Int(0, -1, 1),   // Diagonal: Negative Z, Positive Y
+        new Vector3Int(0, 1, -1),   // Diagonal: Positive Z, Negative Y
+        new Vector3Int(0, 1, 1),    // Diagonal: Positive Z, Positive Y
+        // Diagonal neighbors in X and Z directions
+        new Vector3Int(-1, 0, -1),  // Diagonal: Negative X, Negative Z
+        new Vector3Int(-1, 0, 1),   // Diagonal: Negative X, Positive Z
+        new Vector3Int(1, 0, -1),   // Diagonal: Positive X, Negative Z
+        new Vector3Int(1, 0, 1),    // Diagonal: Positive X, Positive Z
+        //xyz combinations
+        new Vector3Int(-1, -1, -1), // Negative X, Negative Y, Negative Z
+        new Vector3Int(-1, -1, 1),  // Negative X, Negative Y, Positive Z
+        new Vector3Int(-1, 1, -1),  // Negative X, Positive Y, Negative Z
+        new Vector3Int(-1, 1, 1),   // Negative X, Positive Y, Positive Z
+        new Vector3Int(1, -1, -1),  // Positive X, Negative Y, Negative Z
+        new Vector3Int(1, -1, 1),   // Positive X, Negative Y, Positive Z
+        new Vector3Int(1, 1, -1),   // Positive X, Positive Y, Negative Z
+        new Vector3Int(1, 1, 1),    // Positive X, Positive Y, Positive Z
+    };
+
     public Box(int width, int height, int depth)
     {
         Width = width;
@@ -68,18 +106,13 @@ public class Box
     public List<Vector3Int> GetNeighbors(Vector3Int currentPosition)
     {
        List<Vector3Int> neighbors = new List<Vector3Int>();
-       neighbors.Add(new Vector3Int(1,1,1));
-       if(voxels.ContainsKey(new Vector3Int(currentPosition.x, currentPosition.y, currentPosition.z)))
-           neighbors.Add(new Vector3Int(currentPosition.x, currentPosition.y, currentPosition.z));
-       if(voxels.ContainsKey(new Vector3Int(currentPosition.x - 1, currentPosition.y, currentPosition.z)))
-           neighbors.Add(new Vector3Int(currentPosition.x - 1, currentPosition.y, currentPosition.z));
-       if(voxels.ContainsKey(new Vector3Int(currentPosition.x + 1, currentPosition.y, currentPosition.z)))
-           neighbors.Add(new Vector3Int(currentPosition.x+1, currentPosition.y, currentPosition.z));
-       if(voxels.ContainsKey(new Vector3Int(currentPosition.x, currentPosition.y-1, currentPosition.z)))
-           neighbors.Add(new Vector3Int(currentPosition.x, currentPosition.y-1, currentPosition.z));
-       if(voxels.ContainsKey(new Vector3Int(currentPosition.x, currentPosition.y+1, currentPosition.z)))
-           neighbors.Add(new Vector3Int(currentPosition.x, currentPosition.y+1, currentPosition.z));
 
+       foreach (Vector3Int offset in offsets)
+       {
+            Vector3Int potentialNeighbor = currentPosition + offset;
+            if (voxels.ContainsKey(potentialNeighbor))
+                neighbors.Add(potentialNeighbor);
+       }
        return neighbors;
     }
 

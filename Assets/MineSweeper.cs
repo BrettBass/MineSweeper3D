@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Minesweeper : MonoBehaviour
 {
-
+    #region MaterialTypes
     public Material TileUnknown;
     public Material TileFlag;
     public Material TileExploded;
@@ -19,7 +19,8 @@ public class Minesweeper : MonoBehaviour
     public Material Tile6;
     public Material Tile7;
     public Material Tile8;
-    //public Texture TileUnknown;
+    #endregion
+
     private Box box;
 
 
@@ -40,12 +41,19 @@ public class Minesweeper : MonoBehaviour
         if (Input.GetMouseButtonUp(0))
             if (Physics.Raycast(ray, out tmpHitHighliht, 100))
             {
-                Vector3Int tmp = Vector3Int.CeilToInt(tmpHitHighliht.transform.TransformDirection(Vector3Int.forward));
-                Debug.Log($"SIZE: {box.GetNeighbors(tmp).ToShortString()}");
-                foreach(Vector3Int n in box.GetNeighbors(tmp))
-                    Debug.Log($"Position {n.x}{n.y}{n.z}");
+                Renderer renderer = tmpHitHighliht.transform.GetComponent<Renderer>();
+
+                Vector3Int tmp = Vector3Int.CeilToInt(tmpHitHighliht.transform.position);
+                Debug.Log($"POSITION: {Vector3Int.CeilToInt(tmpHitHighliht.transform.position)}");
+                foreach (Vector3Int b in box.GetNeighbors(tmp))
+                {
+                    Debug.Log($"Position {b}");
+                }
                 if (tmpHitHighliht.transform.gameObject.GetComponent<Cell>().type == Cell.Type.Mine)
+                {
                     Debug.Log($"We hit a bomb: {tmpHitHighliht.transform.name}");
+                    renderer.material = TileExploded;
+                }
                 else
                     Debug.Log($"We didn't hit a bomb: {tmpHitHighliht.transform.name}");
             }
@@ -82,7 +90,7 @@ public class Minesweeper : MonoBehaviour
                     go.transform.position = new Vector3(i, k, j);
                     //go.transform.localScale = new Vector3(0.9f, 0.9f, 0.9f);
                     go.transform.localScale = new Vector3(1, 1, 1);
-                    go.transform.name = $"[{i},{j}]";
+                    go.transform.name = $"[{i},{j},{k}]";
 
                     //go.transform.GetComponent<Renderer>().material = TileFlag;
                     go.transform.GetComponent<Renderer>().material = TileUnknown;
