@@ -27,7 +27,7 @@ public class Minesweeper : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        box = new Box(9,9,9);
+        box = new Box(9, 9, 9);
         CreateCube();
     }
 
@@ -40,6 +40,10 @@ public class Minesweeper : MonoBehaviour
         if (Input.GetMouseButtonUp(0))
             if (Physics.Raycast(ray, out tmpHitHighliht, 100))
             {
+                Vector3Int tmp = Vector3Int.CeilToInt(tmpHitHighliht.transform.TransformDirection(Vector3Int.forward));
+                Debug.Log($"SIZE: {box.GetNeighbors(tmp).ToShortString()}");
+                foreach(Vector3Int n in box.GetNeighbors(tmp))
+                    Debug.Log($"Position {n.x}{n.y}{n.z}");
                 if (tmpHitHighliht.transform.gameObject.GetComponent<Cell>().type == Cell.Type.Mine)
                     Debug.Log($"We hit a bomb: {tmpHitHighliht.transform.name}");
                 else
@@ -69,22 +73,22 @@ public class Minesweeper : MonoBehaviour
 
     void CreateCube()
     {
-        for (int k = 0; k<9; k++)
-            for (int i = 0; i<9; i++)
-                for (int j = 0; j<9; j++)
+        for (int k = 0; k < 9; k++)
+            for (int i = 0; i < 9; i++)
+                for (int j = 0; j < 9; j++)
                 {
-                    if (!box.Surface(i,j,k)) continue;
+                    if (!box.Surface(i, j, k)) continue;
                     var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     go.transform.position = new Vector3(i, k, j);
                     //go.transform.localScale = new Vector3(0.9f, 0.9f, 0.9f);
-                    go.transform.localScale = new Vector3(1,1,1);
+                    go.transform.localScale = new Vector3(1, 1, 1);
                     go.transform.name = $"[{i},{j}]";
 
                     //go.transform.GetComponent<Renderer>().material = TileFlag;
                     go.transform.GetComponent<Renderer>().material = TileUnknown;
                     var cd = go.AddComponent<Cell>();
 
-                    if (Random.Range(1,10) > 5)
+                    if (Random.Range(1, 10) > 5)
                     {
                         cd.type = Cell.Type.Mine;
                         //go.transform.GetComponent<Renderer>().material.color = Color.red;
@@ -104,18 +108,18 @@ public class Minesweeper : MonoBehaviour
     }
     private Material GetTileType(Cell cell)
     {
-        switch(cell.type)
+        switch (cell.type)
         {
-            case Cell.Type.Mine:    return TileMine;
-            case Cell.Type.Empty:   return TileEmpty;
-            case Cell.Type.Number:  return GetTileNumber(cell);
+            case Cell.Type.Mine: return TileMine;
+            case Cell.Type.Empty: return TileEmpty;
+            case Cell.Type.Number: return GetTileNumber(cell);
 
             default: return null;
         }
     }
     private Material GetTileNumber(Cell cell)
     {
-        switch(cell.num)
+        switch (cell.num)
         {
             case 1: return Tile1;
             case 2: return Tile2;
