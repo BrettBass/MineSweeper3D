@@ -23,12 +23,15 @@ public class Minesweeper : MonoBehaviour
 
     private Box box;
 
+    public int Width = 9, Height = 9, Depth = 9;
+
 
     RaycastHit tmpHitHighliht;
     // Start is called before the first frame update
     void Start()
     {
-        box = new Box(9, 9, 9);
+        box = new Box(Width, Height, Depth);
+        Camera.main.transform.position = new Vector3Int(box.Width / 2, box.Height / 2, -10);
         CreateVoxelBox();
     }
 
@@ -44,11 +47,6 @@ public class Minesweeper : MonoBehaviour
                 Renderer renderer = tmpHitHighliht.transform.GetComponent<Renderer>();
 
                 Vector3Int tmp = Vector3Int.CeilToInt(tmpHitHighliht.transform.position);
-                Debug.Log($"POSITION: {Vector3Int.CeilToInt(tmpHitHighliht.transform.position)}");
-                foreach (Vector3Int b in box.GetNeighbors(tmp))
-                {
-                    Debug.Log($"Position {b}");
-                }
                 if (box.voxels[tmp].type == Cell.Type.Mine)
                 {
                     Debug.Log($"We hit a bomb: {tmpHitHighliht.transform.name}");
@@ -81,6 +79,18 @@ public class Minesweeper : MonoBehaviour
 
 
     }
+    // public void Reveal(Renderer renderer, Vector3Int voxel)
+    // {
+    //     if (box.voxels[voxel].type == Cell.Type.Empty)
+    //         Flood(renderer, voxel);
+
+    //     box.voxels[voxel].showing = true;
+    //     tmpHitHighliht.transform.GetComponent<Renderer>().material = GetCube(box.voxels[voxel]);
+    // }
+    //private void Flood(Renderer renderer, Vector3Int voxel)
+    //{
+    //    if
+    //}
     // void CreateVoxelBox()
     // {
     //     foreach (KeyValuePair<Vector3Int, Cell> currentVoxel in box.voxels)
@@ -104,11 +114,13 @@ public class Minesweeper : MonoBehaviour
             //go.transform.GetComponent<MeshFilter>().mesh.SetUVs(new UVModifier());
             go.AddComponent<UVModifier>();
             go.transform.position = currentVoxel.Key;
-            go.transform.localScale = new Vector3(1,1,1);
+            go.transform.localScale = new Vector3(1, 1, 1);
             go.transform.name = $"[{currentVoxel.Key.x},{currentVoxel.Key.y},{currentVoxel.Key.z}]";
             go.transform.GetComponent<Renderer>().material = GetCube(currentVoxel.Value);
+
             if (currentVoxel.Value.type == Cell.Type.Mine)
                 go.transform.GetComponent<Renderer>().material = TileMine;
+
             var cg = go.AddComponent<Cell>();
             cg = currentVoxel.Value;
         }

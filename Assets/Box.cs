@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class Box
 {
     public int Width { get; private set; }
@@ -9,8 +10,9 @@ public class Box
     public int Depth { get; private set; }
 
     //private Cell [,,] voxels;
-    public  Dictionary<Vector3Int, Cell> voxels = new Dictionary<Vector3Int, Cell>();
+    public Dictionary<Vector3Int, Cell> voxels = new Dictionary<Vector3Int, Cell>();
     private HashSet<Vector3Int> minePositions = new HashSet<Vector3Int>();
+
 
 
     // Define offsets for neighboring cells in each direction, including diagonals
@@ -58,7 +60,7 @@ public class Box
 
 
         CreateCells();
-        CreateMines(9*9);
+        CreateMines((int)(0.3f * voxels.Count));
         CreateNumbers();
     }
 
@@ -94,7 +96,7 @@ public class Box
                     Random.Range(0, Height),
                     Random.Range(0, Depth));
 
-            if (Surface(rand.x, rand.y, rand.z))
+            if (Surface(rand.x, rand.y, rand.z) && voxels.ContainsKey(rand))
             {
                 minePositions.Add(rand);
                 Debug.Log($"Added Min at POSITION: {rand}");
@@ -121,39 +123,32 @@ public class Box
     //
     public List<Vector3Int> GetNeighbors(Vector3Int currentPosition)
     {
-       List<Vector3Int> neighbors = new List<Vector3Int>();
+        List<Vector3Int> neighbors = new List<Vector3Int>();
+        bool[] planes = CheckPlanes(currentPosition);
 
-       foreach (Vector3Int offset in offsets)
-       {
+        foreach (Vector3Int offset in offsets)
+        {
             Vector3Int potentialNeighbor = currentPosition + offset;
-            if (voxels.ContainsKey(potentialNeighbor))
-                neighbors.Add(potentialNeighbor);
-       }
-       return neighbors;
+            bool[] neihborsPlanes = CheckPlanes(potentialNeighbor);
+            for (int i = 0; i < planes.Length; i++)
+            {
+                if (planes[i] && neihborsPlanes[i])
+                {
+                    if (voxels.ContainsKey(potentialNeighbor))
+                    {
+                        neighbors.Add(potentialNeighbor);
+                        break;
+                    }
+                }
+            }
+        }
+        return neighbors;
     }
 
-
-    // public Box(int height, int width, int depth)
-    // {
-    //     Height = height;
-    //     Width  = width;
-    //     Depth  = depth;
-
-    //     voxels = new Cell[Height,Width,Depth];
-    //     HashSet<(int,int,int)> nullSpace = new HashSet<(int,int,int)>();
-
-
-    //     // tranform to hollow box by subtracting null space (inner box)
-    //     for (int i = 1; i < height - 1; i++)
-    //         for (int j = 1; j < width - 1; j++)
-    //             for (int k = 1; k < depth - 1; k++)
-    //                 nullSpace.Add((i,j,k));
-
-    //     // Create solid box
-    //     for (int i = 0; i < height; i++)
-    //         for (int j = 0; j < width; j++)
-    //             for (int k = 0; k < depth; k++)
-    //                 if ( !nullSpace.Contains((i,j,k)) )
-    //                     voxels[i,j,k] = new Cell();
-    // }
+    private bool[] CheckPlanes(Vector3Int voxel)
+    {
+        return new bool[]{voxel.x == 0, voxel.x == Width  - 1,
+                          voxel.y == 0, voxel.y == Height - 1,
+                          voxel.z == 0, voxel.z == Depth  - 1};
+    }
 }
