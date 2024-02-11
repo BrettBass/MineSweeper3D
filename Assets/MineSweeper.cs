@@ -23,7 +23,7 @@ public class Minesweeper : MonoBehaviour
 
     private Box box;
 
-    public int Width = 9, Height = 9, Depth = 9;
+    public int Width = 16, Height = 16, Depth = 16;
 
 
     RaycastHit tmpHitHighliht;
@@ -31,8 +31,9 @@ public class Minesweeper : MonoBehaviour
     void Start()
     {
         box = new Box(Width, Height, Depth);
-        Camera.main.transform.position = new Vector3Int(box.Width / 2, box.Height / 2, -10);
+        Camera.main.transform.position = new Vector3Int(box.Width / 2, box.Height / 2, -20);
         CreateVoxelBox();
+        //box.voxels[new Vector3Int(1,0,0)].GetComponent<Renderer>().material = TileExploded;
     }
 
     // Update is called once per frame
@@ -44,26 +45,33 @@ public class Minesweeper : MonoBehaviour
         if (Input.GetMouseButtonUp(0))
             if (Physics.Raycast(ray, out tmpHitHighliht, 100))
             {
-                Renderer renderer = tmpHitHighliht.transform.GetComponent<Renderer>();
+                //Renderer renderer = tmpHitHighliht.transform.GetComponent<Renderer>();
 
-                Vector3Int tmp = Vector3Int.CeilToInt(tmpHitHighliht.transform.position);
-                if (box.voxels[tmp].type == Cell.Type.Mine)
+                Vector3Int position = Vector3Int.CeilToInt(tmpHitHighliht.transform.position);
+                Cell cell = box.voxels[position].GetComponent<Cell>();
+                Renderer renderer = box.voxels[position].GetComponent<Renderer>();
+                if (cell.type == Cell.Type.Mine)
                 {
                     Debug.Log($"We hit a bomb: {tmpHitHighliht.transform.name}");
-                    renderer.material = TileExploded;
+                    //renderer.material = TileExploded;
+                    box.voxels[position].GetComponent<Renderer>().material = TileExploded;
                 }
                 else
                 {
                     Debug.Log($"We didn't hit a bomb: {tmpHitHighliht.transform.name}");
-                    box.voxels[tmp].showing = true;
-                    tmpHitHighliht.transform.GetComponent<Renderer>().material = GetCube(box.voxels[tmp]);
-
+                    //cell.showing = true;
+                    // box.voxels[position].GetComponent<Cell>().showing = true;
+                    //tmpHitHighliht.transform.GetComponent<Renderer>().material = GetCube(box.voxels[position].GetComponent<Cell>());
+                    //renderer.material = GetCube(box.voxels[position].GetComponent<Cell>());
+                    Reveal(position);
                 }
             }
         if (Input.GetMouseButtonUp(1))
             if (Physics.Raycast(ray, out tmpHitHighliht, 100))
             {
-                Renderer renderer = tmpHitHighliht.transform.GetComponent<Renderer>();
+                //Renderer renderer = tmpHitHighliht.transform.GetComponent<Renderer>();
+                Vector3Int position = Vector3Int.CeilToInt(tmpHitHighliht.transform.position);
+                Renderer renderer = box.voxels[position].GetComponent<Renderer>();
 
                 Debug.Log($"renderer shared material: {renderer.sharedMaterial}");
                 Debug.Log($"TileUnkonwn material: {TileUnknown}");
@@ -75,22 +83,61 @@ public class Minesweeper : MonoBehaviour
                 else if (renderer.sharedMaterial == TileFlag)
                     renderer.material = TileUnknown;
             }
+        if (Input.GetKeyUp(KeyCode.W))
+        {
+            Camera.main.transform.position = new Vector3Int(box.Width / 2, box.Height / 2, 40);
+            // Camera.main.transform.Rotate(new Vector3Int(90, 0, 0)); // looking down
+            Camera.main.transform.Rotate(new Vector3Int(0, 180, 0)); //
+            //Camera.main.transform.position = new Vector3Int(box.Width / 2, box.Height / 2, -20);
+            //Camera.main.transform.Translate(Vector3.right);
+        }
+        if (Input.GetKeyUp(KeyCode.S))
+        {
+            Camera.main.transform.position = new Vector3Int(box.Width / 2, box.Height / 2, -20);
+            Camera.main.transform.Rotate(new Vector3Int(0, 180, 0)); //
+        }
+        if (Input.GetKeyUp(KeyCode.A))
+        {
+            Camera.main.transform.position = new Vector3Int(-box.Width, box.Height / 2, 7);
+            Camera.main.transform.Rotate(new Vector3Int(0, 90, 0)); //
+        }
+        if (Input.GetKeyUp(KeyCode.D))
+        {
+            Camera.main.transform.position = new Vector3Int(2*box.Width, box.Height / 2, 7);
+            Camera.main.transform.Rotate(new Vector3Int(0, -90, 0)); //
+        }
 
 
 
     }
-    // public void Reveal(Renderer renderer, Vector3Int voxel)
-    // {
-    //     if (box.voxels[voxel].type == Cell.Type.Empty)
-    //         Flood(renderer, voxel);
+    public void Reveal(Vector3Int voxel)
+    {
+        Renderer renderer = box.voxels[voxel].GetComponent<Renderer>();
+        Cell cell = box.voxels[voxel].GetComponent<Cell>();
 
-    //     box.voxels[voxel].showing = true;
-    //     tmpHitHighliht.transform.GetComponent<Renderer>().material = GetCube(box.voxels[voxel]);
-    // }
-    //private void Flood(Renderer renderer, Vector3Int voxel)
-    //{
-    //    if
-    //}
+        if (cell.type == Cell.Type.Empty)
+            Flood(voxel);
+
+        cell.showing = true;
+        tmpHitHighliht.transform.GetComponent<Renderer>().material = GetCube(cell);
+    }
+    private void Flood(Vector3Int voxel)
+    {
+        Cell cell = box.voxels[voxel].GetComponent<Cell>();
+        if (cell.showing) return;
+        if (cell.type == Cell.Type.Mine) return;
+        Renderer renderer = box.voxels[voxel].GetComponent<Renderer>();
+
+        cell.showing = true;
+        renderer.material = GetCube(cell);
+
+        if (cell.type == Cell.Type.Empty)
+        {
+            foreach (var neighbor in box.GetNeighbors(voxel))
+                Flood(neighbor);
+        }
+
+    }
     // void CreateVoxelBox()
     // {
     //     foreach (KeyValuePair<Vector3Int, Cell> currentVoxel in box.voxels)
@@ -108,21 +155,21 @@ public class Minesweeper : MonoBehaviour
     // }
     void CreateVoxelBox()
     {
-        foreach (KeyValuePair<Vector3Int, Cell> currentVoxel in box.voxels)
+        foreach (KeyValuePair<Vector3Int, GameObject> currentVoxel in box.voxels)
         {
-            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            //go.transform.GetComponent<MeshFilter>().mesh.SetUVs(new UVModifier());
-            go.AddComponent<UVModifier>();
-            go.transform.position = currentVoxel.Key;
-            go.transform.localScale = new Vector3(1, 1, 1);
-            go.transform.name = $"[{currentVoxel.Key.x},{currentVoxel.Key.y},{currentVoxel.Key.z}]";
-            go.transform.GetComponent<Renderer>().material = GetCube(currentVoxel.Value);
+            // var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            // //go.transform.GetComponent<MeshFilter>().mesh.SetUVs(new UVModifier());
+            // go.AddComponent<UVModifier>();
+            // go.transform.position = currentVoxel.Key;
+            // go.transform.localScale = new Vector3(1, 1, 1);
+            // go.transform.name = $"[{currentVoxel.Key.x},{currentVoxel.Key.y},{currentVoxel.Key.z}]";
+            // go.transform.GetComponent<Renderer>().material = GetCube(currentVoxel.Value);
 
-            if (currentVoxel.Value.type == Cell.Type.Mine)
-                go.transform.GetComponent<Renderer>().material = TileMine;
 
-            var cg = go.AddComponent<Cell>();
-            cg = currentVoxel.Value;
+            currentVoxel.Value.transform.GetComponent<Renderer>().material = GetCube(currentVoxel.Value.GetComponent<Cell>());
+
+            //if (currentVoxel.Value.transform.GetComponent<Cell>().type == Cell.Type.Mine)
+            //    currentVoxel.Value.transform.GetComponent<Renderer>().material = TileMine;
         }
     }
 

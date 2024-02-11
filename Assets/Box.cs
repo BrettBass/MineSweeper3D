@@ -10,7 +10,7 @@ public class Box
     public int Depth { get; private set; }
 
     //private Cell [,,] voxels;
-    public Dictionary<Vector3Int, Cell> voxels = new Dictionary<Vector3Int, Cell>();
+    public Dictionary<Vector3Int, GameObject> voxels = new Dictionary<Vector3Int, GameObject>();
     private HashSet<Vector3Int> minePositions = new HashSet<Vector3Int>();
 
 
@@ -60,7 +60,7 @@ public class Box
 
 
         CreateCells();
-        CreateMines((int)(0.3f * voxels.Count));
+        CreateMines((int)(0.1f * voxels.Count));
         CreateNumbers();
     }
 
@@ -80,11 +80,19 @@ public class Box
                 for (int k = 0; k < Depth; k++)
                     if (Surface(i, j, k))
                     {
-                        Cell cell = new Cell();
-                        cell.type = Cell.Type.Empty;
-                        cell.showing = false;
 
-                        voxels.Add(new Vector3Int(i, j, k), cell);
+                        var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                        //go.transform.GetComponent<MeshFilter>().mesh.SetUVs(new UVModifier());
+                        go.AddComponent<UVModifier>();
+                        go.AddComponent<Cell>();
+                        go.transform.position = new Vector3Int(i,j,k);
+                        go.transform.localScale = new Vector3(1, 1, 1);
+                        go.transform.name = $"[{i},{j},{k}]";
+                        go.GetComponent<Cell>().type = Cell.Type.Empty;
+                        go.GetComponent<Cell>().showing = false;
+
+
+                        voxels.Add(new Vector3Int(i, j, k), go);
                     }
     }
     private void CreateMines(int numMines)
@@ -100,7 +108,7 @@ public class Box
             {
                 minePositions.Add(rand);
                 Debug.Log($"Added Min at POSITION: {rand}");
-                voxels[rand].type = Cell.Type.Mine;
+                voxels[rand].GetComponent<Cell>().type = Cell.Type.Mine;
             }
         }
     }
@@ -111,11 +119,11 @@ public class Box
         {
             foreach (Vector3Int neighbor in GetNeighbors(mine))
             {
-                if (voxels[neighbor].type == Cell.Type.Empty)
-                    voxels[neighbor].type = Cell.Type.Number;
+                if (voxels[neighbor].GetComponent<Cell>().type == Cell.Type.Empty)
+                    voxels[neighbor].GetComponent<Cell>().type = Cell.Type.Number;
 
-                voxels[neighbor].num++;
-                Debug.Log($"VOXEL NUMBER: {voxels[neighbor].num}");
+                voxels[neighbor].GetComponent<Cell>().num++;
+                Debug.Log($"VOXEL NUMBER: {voxels[neighbor].GetComponent<Cell>().num}");
             }
         }
     }
