@@ -29,7 +29,7 @@ public class Minesweeper : MonoBehaviour
     void Start()
     {
         box = new Box(9, 9, 9);
-        CreateCube();
+        CreateVoxelBox();
     }
 
     // Update is called once per frame
@@ -49,21 +49,24 @@ public class Minesweeper : MonoBehaviour
                 {
                     Debug.Log($"Position {b}");
                 }
-                if (tmpHitHighliht.transform.gameObject.GetComponent<Cell>().type == Cell.Type.Mine)
+                if (box.voxels[tmp].type == Cell.Type.Mine)
                 {
                     Debug.Log($"We hit a bomb: {tmpHitHighliht.transform.name}");
                     renderer.material = TileExploded;
                 }
                 else
+                {
                     Debug.Log($"We didn't hit a bomb: {tmpHitHighliht.transform.name}");
+                    box.voxels[tmp].showing = true;
+                    tmpHitHighliht.transform.GetComponent<Renderer>().material = GetCube(box.voxels[tmp]);
+
+                }
             }
         if (Input.GetMouseButtonUp(1))
             if (Physics.Raycast(ray, out tmpHitHighliht, 100))
             {
-                //Renderer renderer = tmpHitHighliht.transform.gameObject.GetComponent<Renderer>();
                 Renderer renderer = tmpHitHighliht.transform.GetComponent<Renderer>();
 
-                // use shared material to avoid "(instance)"
                 Debug.Log($"renderer shared material: {renderer.sharedMaterial}");
                 Debug.Log($"TileUnkonwn material: {TileUnknown}");
                 Debug.Log($"TileFlag material: {TileFlag}");
@@ -78,33 +81,39 @@ public class Minesweeper : MonoBehaviour
 
 
     }
+    // void CreateVoxelBox()
+    // {
+    //     foreach (KeyValuePair<Vector3Int, Cell> currentVoxel in box.voxels)
+    //     {
+    //         // Instantiate a new custom cube mesh
+    //         CustomCubeMesh customCubeMeshInstance = Instantiate(customCubeMeshPrefab, currentVoxel.Key, Quaternion.identity);
 
-    void CreateCube()
+    //         // Set the name of the GameObject
+    //         customCubeMeshInstance.gameObject.name = $"[{currentVoxel.Key.x},{currentVoxel.Key.y},{currentVoxel.Key.z}]";
+
+    //         // Set the material of the cube mesh based on the cell type
+    //         Material material = GetCube(currentVoxel.Value);
+    //         customCubeMeshInstance.GetComponent<Renderer>().material = material;
+    //     }
+    // }
+    void CreateVoxelBox()
     {
-        for (int k = 0; k < 9; k++)
-            for (int i = 0; i < 9; i++)
-                for (int j = 0; j < 9; j++)
-                {
-                    if (!box.Surface(i, j, k)) continue;
-                    var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    go.transform.position = new Vector3(i, k, j);
-                    //go.transform.localScale = new Vector3(0.9f, 0.9f, 0.9f);
-                    go.transform.localScale = new Vector3(1, 1, 1);
-                    go.transform.name = $"[{i},{j},{k}]";
-
-                    //go.transform.GetComponent<Renderer>().material = TileFlag;
-                    go.transform.GetComponent<Renderer>().material = TileUnknown;
-                    var cd = go.AddComponent<Cell>();
-
-                    if (Random.Range(1, 10) > 5)
-                    {
-                        cd.type = Cell.Type.Mine;
-                        //go.transform.GetComponent<Renderer>().material.color = Color.red;
-                    }
-                }
-
-
+        foreach (KeyValuePair<Vector3Int, Cell> currentVoxel in box.voxels)
+        {
+            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            //go.transform.GetComponent<MeshFilter>().mesh.SetUVs(new UVModifier());
+            go.AddComponent<UVModifier>();
+            go.transform.position = currentVoxel.Key;
+            go.transform.localScale = new Vector3(1,1,1);
+            go.transform.name = $"[{currentVoxel.Key.x},{currentVoxel.Key.y},{currentVoxel.Key.z}]";
+            go.transform.GetComponent<Renderer>().material = GetCube(currentVoxel.Value);
+            if (currentVoxel.Value.type == Cell.Type.Mine)
+                go.transform.GetComponent<Renderer>().material = TileMine;
+            var cg = go.AddComponent<Cell>();
+            cg = currentVoxel.Value;
+        }
     }
+
 
     private Material GetCube(Cell cell)
     {

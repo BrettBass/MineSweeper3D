@@ -9,7 +9,7 @@ public class Box
     public int Depth { get; private set; }
 
     //private Cell [,,] voxels;
-    private Dictionary<Vector3Int, Cell> voxels = new Dictionary<Vector3Int, Cell>();
+    public  Dictionary<Vector3Int, Cell> voxels = new Dictionary<Vector3Int, Cell>();
     private HashSet<Vector3Int> minePositions = new HashSet<Vector3Int>();
 
 
@@ -58,6 +58,8 @@ public class Box
 
 
         CreateCells();
+        CreateMines(9*9);
+        CreateNumbers();
     }
 
     public bool Surface(int x, int y, int z)
@@ -92,13 +94,27 @@ public class Box
                     Random.Range(0, Height),
                     Random.Range(0, Depth));
 
-            minePositions.Add(rand);
+            if (Surface(rand.x, rand.y, rand.z))
+            {
+                minePositions.Add(rand);
+                Debug.Log($"Added Min at POSITION: {rand}");
+                voxels[rand].type = Cell.Type.Mine;
+            }
         }
     }
     private void CreateNumbers()
     {
+        Debug.Assert(minePositions.Count != 0);
         foreach (Vector3Int mine in minePositions)
         {
+            foreach (Vector3Int neighbor in GetNeighbors(mine))
+            {
+                if (voxels[neighbor].type == Cell.Type.Empty)
+                    voxels[neighbor].type = Cell.Type.Number;
+
+                voxels[neighbor].num++;
+                Debug.Log($"VOXEL NUMBER: {voxels[neighbor].num}");
+            }
         }
     }
     // max possible neighbors = 8
