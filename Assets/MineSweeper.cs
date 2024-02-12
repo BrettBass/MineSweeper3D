@@ -21,8 +21,17 @@ public class Minesweeper : MonoBehaviour
     public Material Tile8;
     #endregion
 
-    private Box box;
 
+    private static readonly Quaternion LOOKING_UP = Quaternion.LookRotation(new Vector3Int(0, 90, 0));
+    private static readonly Quaternion LOOKING_DOWN = Quaternion.LookRotation(new Vector3Int(0, -90, 0));
+    private static readonly Quaternion LOOKING_LEFT = Quaternion.LookRotation(new Vector3Int(90, 0, 0));
+    private static readonly Quaternion LOOKING_RIGHT = Quaternion.LookRotation(new Vector3Int(-90, 0, 0));
+    private static readonly Quaternion LOOKING_FORWARD = Quaternion.LookRotation(new Vector3Int(0, 0, -90));
+    private static readonly Quaternion LOOKING_BACKWARD = Quaternion.LookRotation(new Vector3Int(0, 0, 90));
+
+    private static readonly Quaternion[] lookingDirection = { LOOKING_FORWARD, LOOKING_RIGHT, LOOKING_BACKWARD, LOOKING_LEFT };
+
+    private Box box;
     public int Width = 16, Height = 16, Depth = 16;
 
 
@@ -40,6 +49,7 @@ public class Minesweeper : MonoBehaviour
     void Update()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        var camera = Camera.main.transform;
 
         //if (Input.GetMouseButton(0))
         if (Input.GetMouseButtonUp(0))
@@ -85,30 +95,73 @@ public class Minesweeper : MonoBehaviour
             }
         if (Input.GetKeyUp(KeyCode.W))
         {
-            Camera.main.transform.position = new Vector3Int(box.Width / 2, box.Height / 2, 40);
-            // Camera.main.transform.Rotate(new Vector3Int(90, 0, 0)); // looking down
-            Camera.main.transform.Rotate(new Vector3Int(0, 180, 0)); //
-            //Camera.main.transform.position = new Vector3Int(box.Width / 2, box.Height / 2, -20);
-            //Camera.main.transform.Translate(Vector3.right);
+            camera.position = new Vector3(box.Width / 2, box.Height / 2, box.Depth / 2);
+
+            if (camera.rotation == LOOKING_UP)
+                camera.rotation = LOOKING_BACKWARD;
+            else if (camera.rotation == LOOKING_DOWN)
+                camera.rotation = LOOKING_FORWARD;
+            else
+                camera.rotation = LOOKING_DOWN;
+
+            camera.Translate(new Vector3Int(0, 0, -box.Width * 2));
         }
         if (Input.GetKeyUp(KeyCode.S))
         {
-            Camera.main.transform.position = new Vector3Int(box.Width / 2, box.Height / 2, -20);
-            Camera.main.transform.Rotate(new Vector3Int(0, 180, 0)); //
+            camera.position = new Vector3(box.Width / 2, box.Height / 2, box.Depth / 2);
+
+            if (camera.rotation == LOOKING_UP)
+                camera.rotation = LOOKING_FORWARD;
+            else if (camera.rotation == LOOKING_DOWN)
+                camera.rotation = LOOKING_BACKWARD;
+            else
+                camera.rotation = LOOKING_UP;
+
+            camera.Translate(new Vector3Int(0, 0, -box.Width * 2));
         }
         if (Input.GetKeyUp(KeyCode.A))
         {
-            Camera.main.transform.position = new Vector3Int(-box.Width, box.Height / 2, 7);
-            Camera.main.transform.Rotate(new Vector3Int(0, 90, 0)); //
+            camera.position = new Vector3(box.Width / 2, box.Height / 2, box.Depth / 2);
+
+            if (camera.rotation == LOOKING_UP || camera.rotation == LOOKING_DOWN)
+                camera.rotation = LOOKING_LEFT;
+            else
+                camera.rotation = NewAngle(camera.rotation, true);
+
+            camera.Translate(new Vector3Int(0, 0, -box.Width * 2));
         }
         if (Input.GetKeyUp(KeyCode.D))
         {
-            Camera.main.transform.position = new Vector3Int(2*box.Width, box.Height / 2, 7);
-            Camera.main.transform.Rotate(new Vector3Int(0, -90, 0)); //
+
+            camera.position = new Vector3(box.Width / 2, box.Height / 2, box.Depth / 2);
+
+            if (camera.rotation == LOOKING_UP || camera.rotation == LOOKING_DOWN)
+                camera.rotation = LOOKING_RIGHT;
+            else
+                camera.rotation = NewAngle(camera.rotation, false);
+
+            camera.Translate(new Vector3Int(0, 0, -box.Width * 2));
         }
 
 
 
+    }
+    // I honestly hate that i wrote this cause how complex i made it but it gets the job done
+    private Quaternion NewAngle(Quaternion currentAngle, bool right)
+    {
+        int newAngleIndex = 0;
+        for (; newAngleIndex < lookingDirection.Length; newAngleIndex++)
+            if (currentAngle == lookingDirection[newAngleIndex])
+                break;
+
+        newAngleIndex += right ? 1 : -1;
+        if (newAngleIndex < 0)
+            newAngleIndex = lookingDirection.Length - 1;
+        else if (newAngleIndex >= lookingDirection.Length)
+            newAngleIndex = 0;
+
+
+        return lookingDirection[newAngleIndex];
     }
     public void Reveal(Vector3Int voxel)
     {
@@ -138,39 +191,10 @@ public class Minesweeper : MonoBehaviour
         }
 
     }
-    // void CreateVoxelBox()
-    // {
-    //     foreach (KeyValuePair<Vector3Int, Cell> currentVoxel in box.voxels)
-    //     {
-    //         // Instantiate a new custom cube mesh
-    //         CustomCubeMesh customCubeMeshInstance = Instantiate(customCubeMeshPrefab, currentVoxel.Key, Quaternion.identity);
-
-    //         // Set the name of the GameObject
-    //         customCubeMeshInstance.gameObject.name = $"[{currentVoxel.Key.x},{currentVoxel.Key.y},{currentVoxel.Key.z}]";
-
-    //         // Set the material of the cube mesh based on the cell type
-    //         Material material = GetCube(currentVoxel.Value);
-    //         customCubeMeshInstance.GetComponent<Renderer>().material = material;
-    //     }
-    // }
     void CreateVoxelBox()
     {
         foreach (KeyValuePair<Vector3Int, GameObject> currentVoxel in box.voxels)
-        {
-            // var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            // //go.transform.GetComponent<MeshFilter>().mesh.SetUVs(new UVModifier());
-            // go.AddComponent<UVModifier>();
-            // go.transform.position = currentVoxel.Key;
-            // go.transform.localScale = new Vector3(1, 1, 1);
-            // go.transform.name = $"[{currentVoxel.Key.x},{currentVoxel.Key.y},{currentVoxel.Key.z}]";
-            // go.transform.GetComponent<Renderer>().material = GetCube(currentVoxel.Value);
-
-
             currentVoxel.Value.transform.GetComponent<Renderer>().material = GetCube(currentVoxel.Value.GetComponent<Cell>());
-
-            //if (currentVoxel.Value.transform.GetComponent<Cell>().type == Cell.Type.Mine)
-            //    currentVoxel.Value.transform.GetComponent<Renderer>().material = TileMine;
-        }
     }
 
 

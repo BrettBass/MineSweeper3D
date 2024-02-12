@@ -20,6 +20,11 @@ public class UVModifier : MonoBehaviour
         (uvs[15], uvs[13]) = (uvs[13], uvs[15]);
         (uvs[12], uvs[14]) = (uvs[14], uvs[12]);
 
+
+        // top face
+        (uvs[4], uvs[9]) = (uvs[9], uvs[4]);
+        (uvs[5], uvs[8]) = (uvs[8], uvs[5]);
+
         // Apply the modified UVs back to the mesh
         mesh.uv = uvs;
     }
