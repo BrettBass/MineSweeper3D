@@ -34,15 +34,32 @@ public class Minesweeper : MonoBehaviour
     private Box box;
     public int Width = 16, Height = 16, Depth = 16;
 
+    private void OnEnable()
+    {
+        UIModifier.OnChangeSize += UIManager_OnChanngSize;
+    }
+    private void UIManager_OnChanngSize(int x, int y, int z)
+    {
+        Debug.Log("AT UI Manager");
+        Width = x;
+        Height = y;
+        Depth = z;
+        box.Cleanup();
+        newGame();
+    }
+    private void newGame()
+    {
+        box = new Box(Width, Height, Depth);
+        Camera.main.transform.position = new Vector3Int(box.Width / 2, box.Height / 2, -20 - Depth/2);
+        CreateVoxelBox();
+        //box.voxels[new Vector3Int(1,0,0)].GetComponent<Renderer>().material = TileExploded;
+    }
 
     RaycastHit tmpHitHighliht;
     // Start is called before the first frame update
     void Start()
     {
-        box = new Box(Width, Height, Depth);
-        Camera.main.transform.position = new Vector3Int(box.Width / 2, box.Height / 2, -20);
-        CreateVoxelBox();
-        //box.voxels[new Vector3Int(1,0,0)].GetComponent<Renderer>().material = TileExploded;
+        newGame();
     }
 
     // Update is called once per frame

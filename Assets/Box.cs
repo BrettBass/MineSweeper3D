@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading.Tasks;
 
 
 public class Box
@@ -73,9 +74,58 @@ public class Box
 
     private void CreateCells()
     {
+        for (int i = 0; i < Width; i++)
+            for (int j = 0; j < Height; j++)
+            {
+                var frontFaceGameObject = CreateVoxelGameObject(i, j, 0);
+                var backFaceGameObject = CreateVoxelGameObject(i, j, Depth - 1);
+
+                voxels.Add(new Vector3Int(i, j, 0), frontFaceGameObject);
+                voxels.Add(new Vector3Int(i, j, Depth - 1), backFaceGameObject);
+            }
+
+        for (int i = 1; i < Depth - 1; i++)
+            for (int j = 0; j < Height; j++)
+            {
+                var leftFaceGameObject = CreateVoxelGameObject(0, j, i);
+                var rightFaceGameObject = CreateVoxelGameObject(Width - 1, j, i);
+
+                voxels.Add(new Vector3Int(0, j, i), leftFaceGameObject);
+                voxels.Add(new Vector3Int(Width - 1, j, i), rightFaceGameObject);
+            }
+
+        for (int i = 1; i < Width - 1; i++)
+            for (int j = 1; j < Depth - 1; j++)
+            {
+                var bottomFaceGameObject = CreateVoxelGameObject(i, 0, j);
+                var topFaceGameObject = CreateVoxelGameObject(i, Height - 1, j);
+
+                voxels.Add(new Vector3Int(i, 0, j), bottomFaceGameObject);
+                voxels.Add(new Vector3Int(i, Height - 1, j), topFaceGameObject);
+            }
+    }
+
+    private GameObject CreateVoxelGameObject(int i, int j, int k)
+    {
+        var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        //go.transform.GetComponent<MeshFilter>().mesh.SetUVs(new UVModifier());
+        go.AddComponent<UVModifier>();
+        go.AddComponent<Cell>();
+        go.transform.position = new Vector3Int(i, j, k);
+        //go.transform.localScale = new Vector3(1, 1, 1);
+        go.transform.localScale = new Vector3(0.9f, 0.9f, 0.9f);
+        go.transform.name = $"[{i},{j},{k}]";
+        go.GetComponent<Cell>().type = Cell.Type.Empty;
+        go.GetComponent<Cell>().showing = false;
+
+        return go;
+    }
+    private void Create()
+    {
         // iterate through all voxels of a cube
         // only accept voxels along cube's surface area
-        for (int i = 0; i < Height; i++)
+        Parallel.For (0, Height, i =>
+                {
             for (int j = 0; j < Width; j++)
                 for (int k = 0; k < Depth; k++)
                     if (Surface(i, j, k))
@@ -85,8 +135,9 @@ public class Box
                         //go.transform.GetComponent<MeshFilter>().mesh.SetUVs(new UVModifier());
                         go.AddComponent<UVModifier>();
                         go.AddComponent<Cell>();
-                        go.transform.position = new Vector3Int(i,j,k);
-                        go.transform.localScale = new Vector3(1, 1, 1);
+                        go.transform.position = new Vector3Int(i, j, k);
+                        //go.transform.localScale = new Vector3(1, 1, 1);
+                        go.transform.localScale = new Vector3(0.9f, 0.9f, 0.9f);
                         go.transform.name = $"[{i},{j},{k}]";
                         go.GetComponent<Cell>().type = Cell.Type.Empty;
                         go.GetComponent<Cell>().showing = false;
@@ -94,6 +145,7 @@ public class Box
 
                         voxels.Add(new Vector3Int(i, j, k), go);
                     }
+                });
     }
     private void CreateMines(int numMines)
     {
@@ -159,4 +211,13 @@ public class Box
                           voxel.y == 0, voxel.y == Height - 1,
                           voxel.z == 0, voxel.z == Depth  - 1};
     }
+    public void Cleanup()
+    {
+        foreach (var voxel in voxels.Values)
+        {
+            GameObject.Destroy(voxel);
+        }
+        voxels.Clear(); // Clear the dictionary
+    }
+
 }
