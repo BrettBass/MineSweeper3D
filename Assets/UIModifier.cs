@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System.Diagnostics;
 
 
 public class UIModifier : MonoBehaviour
@@ -14,10 +15,13 @@ public class UIModifier : MonoBehaviour
     [SerializeField] private TextMeshProUGUI sliderTextWidth = null;
     [SerializeField] private TextMeshProUGUI sliderTextHeight = null;
     [SerializeField] private TextMeshProUGUI sliderTextDepth = null;
-    [SerializeField] private int maxSliderAmount = 32;
+
+    [SerializeField] private TextMeshProUGUI textTimer = null;
 
     public delegate void ChangeSize(int x, int y, int z);
     public static event ChangeSize OnChangeSize;
+
+    Stopwatch stopwatch = Stopwatch.StartNew();
 
     void Start()
     {
@@ -31,28 +35,24 @@ public class UIModifier : MonoBehaviour
                 sliderTextDepth.text = v.ToString("0");
                 });
     }
-
-    public void onSliderChange(int id, int value)
+    void Update()
     {
-        switch (id)
-        {
-            case 0:
-                sliderTextWidth.text = (value * maxSliderAmount).ToString("0");
-                break;
-            case 1:
-                sliderTextHeight.text = (value * maxSliderAmount).ToString("0");
-                break;
-            case 2:
-                sliderTextDepth.text = (value * maxSliderAmount).ToString("0");
-                break;
-            default:
-                break;
-        }
+
+        //Debug.Log("Update - Time value: " + timeValue); // Add this line
+
+        DisplayTime();
+        //DisplayTime(timeValue);
     }
 
+    public void DisplayTime()
+    {
+        textTimer.text = stopwatch.Elapsed.ToString(@"mm\:ss");
+    }
     public void onDifficultyButtonClick(int id)
     {
-        Debug.Log($"Button clicked");
+        //Debug.Log($"Button clicked");
+        stopwatch.Reset();
+        stopwatch.Start();
         switch (id)
         {
             case 0:

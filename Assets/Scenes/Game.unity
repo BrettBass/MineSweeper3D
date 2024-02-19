@@ -293,9 +293,9 @@ RectTransform:
   - {fileID: 979333300}
   m_Father: {fileID: 1031234202}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 28.933998, y: -163.32245}
   m_SizeDelta: {x: 58, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &33978415
@@ -386,10 +386,10 @@ RectTransform:
   - {fileID: 1295105958}
   m_Father: {fileID: 1475698378}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.000020027, y: 0}
-  m_SizeDelta: {x: 260, y: 220.63}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 260, y: 322.3693}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &38925239
 MonoBehaviour:
@@ -699,9 +699,9 @@ RectTransform:
   - {fileID: 1383598487}
   m_Father: {fileID: 1139013099}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 129.76144, y: -103.32246}
   m_SizeDelta: {x: 215, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &98526726
@@ -1271,7 +1271,7 @@ MonoBehaviour:
   sliderTextWidth: {fileID: 1604386237}
   sliderTextHeight: {fileID: 180602341}
   sliderTextDepth: {fileID: 656924568}
-  maxSliderAmount: 32
+  textTimer: {fileID: 611371680}
 --- !u!1 &195472022
 GameObject:
   m_ObjectHideFlags: 0
@@ -2130,7 +2130,7 @@ GameObject:
   - component: {fileID: 493568337}
   - component: {fileID: 493568338}
   m_Layer: 5
-  m_Name: Text Container
+  m_Name: Text Background Container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2831,8 +2831,9 @@ GameObject:
   - component: {fileID: 611371679}
   - component: {fileID: 611371681}
   - component: {fileID: 611371680}
+  - component: {fileID: 611371682}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: Timer (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2877,7 +2878,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 1:00
+  m_text: 00:00
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 890b050d51b24354b95c1fd6dfce0305, type: 2}
   m_sharedMaterial: {fileID: -649193443562851511, guid: 890b050d51b24354b95c1fd6dfce0305, type: 2}
@@ -2954,6 +2955,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 611371678}
   m_CullTransparentMesh: 1
+--- !u!114 &611371682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 611371678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 626242aff4e4d4b40a0e61d856d47dc3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  widthSlider: {fileID: 2088396146}
+  heightSlider: {fileID: 1383598488}
+  depthSlider: {fileID: 185085893}
+  sliderTextWidth: {fileID: 1604386237}
+  sliderTextHeight: {fileID: 180602341}
+  sliderTextDepth: {fileID: 656924568}
+  textTimer: {fileID: 611371680}
 --- !u!1 &624982905
 GameObject:
   m_ObjectHideFlags: 0
@@ -3444,7 +3464,7 @@ GameObject:
   - component: {fileID: 696908734}
   - component: {fileID: 696908733}
   m_Layer: 5
-  m_Name: Current Face Text
+  m_Name: Timer Text Container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3832,9 +3852,9 @@ RectTransform:
   - {fileID: 185085892}
   m_Father: {fileID: 1139013099}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 129.76144, y: -163.32245}
   m_SizeDelta: {x: 215, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &828597576
@@ -4388,7 +4408,7 @@ GameObject:
   - component: {fileID: 978471298}
   - component: {fileID: 978471297}
   m_Layer: 5
-  m_Name: Current Face Shadow Container (1)
+  m_Name: Timer Shadow Container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5203,7 +5223,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.8126831}
+  m_AnchoredPosition: {x: 0, y: 0.8126221}
   m_SizeDelta: {x: 8, y: -15.4883}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1139013100
@@ -5454,9 +5474,9 @@ RectTransform:
   - {fileID: 978471296}
   m_Father: {fileID: 1475698378}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 1}
-  m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -175}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 260, y: 220.63}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1279246795
@@ -5528,7 +5548,7 @@ MonoBehaviour:
   sliderTextWidth: {fileID: 1604386237}
   sliderTextHeight: {fileID: 180602341}
   sliderTextDepth: {fileID: 656924568}
-  maxSliderAmount: 32
+  textTimer: {fileID: 611371680}
 --- !u!4 &1292115156
 Transform:
   m_ObjectHideFlags: 0
@@ -5655,9 +5675,9 @@ RectTransform:
   - {fileID: 2086822570}
   m_Father: {fileID: 1031234202}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 28.933998, y: -103.32245}
   m_SizeDelta: {x: 58, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1302217563
@@ -5746,9 +5766,9 @@ RectTransform:
   - {fileID: 2088396145}
   m_Father: {fileID: 1139013099}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 129.76144, y: -43.322456}
   m_SizeDelta: {x: 215, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1374613806
@@ -5824,9 +5844,9 @@ RectTransform:
   - {fileID: 1437793359}
   m_Father: {fileID: 1031234202}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 28.933998, y: -43.32245}
   m_SizeDelta: {x: 58, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1376161977
@@ -5989,7 +6009,7 @@ MonoBehaviour:
   sliderTextWidth: {fileID: 1604386237}
   sliderTextHeight: {fileID: 180602341}
   sliderTextDepth: {fileID: 656924568}
-  maxSliderAmount: 32
+  textTimer: {fileID: 611371680}
 --- !u!1 &1411983553
 GameObject:
   m_ObjectHideFlags: 0
@@ -6323,6 +6343,7 @@ GameObject:
   - component: {fileID: 1475698378}
   - component: {fileID: 1475698380}
   - component: {fileID: 1475698379}
+  - component: {fileID: 1475698381}
   m_Layer: 5
   m_Name: Panel
   m_TagString: Untagged
@@ -6390,6 +6411,32 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1475698377}
   m_CullTransparentMesh: 1
+--- !u!114 &1475698381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1475698377}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 100
+    m_Bottom: 0
+  m_ChildAlignment: 1
+  m_Spacing: 0
+  m_ChildForceExpandWidth: 1
+  m_ChildForceExpandHeight: 1
+  m_ChildControlWidth: 0
+  m_ChildControlHeight: 0
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
+  m_ReverseArrangement: 0
 --- !u!1 &1545660877
 GameObject:
   m_ObjectHideFlags: 0
@@ -6524,7 +6571,7 @@ GameObject:
   - component: {fileID: 1558197630}
   - component: {fileID: 1558197629}
   m_Layer: 5
-  m_Name: Current Face Container
+  m_Name: Timer Background Container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6793,9 +6840,9 @@ RectTransform:
   - {fileID: 1031234202}
   m_Father: {fileID: 1475698378}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0.000019338, y: 200}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 260, y: 228.3018}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1594580751
@@ -8444,7 +8491,7 @@ MonoBehaviour:
   sliderTextWidth: {fileID: 1604386237}
   sliderTextHeight: {fileID: 180602341}
   sliderTextDepth: {fileID: 656924568}
-  maxSliderAmount: 32
+  textTimer: {fileID: 611371680}
 --- !u!1 &2107044507
 GameObject:
   m_ObjectHideFlags: 0
