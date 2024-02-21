@@ -16,47 +16,20 @@ public class UIModifier : MonoBehaviour
     [SerializeField] private TextMeshProUGUI sliderTextHeight = null;
     [SerializeField] private TextMeshProUGUI sliderTextDepth = null;
 
-    [SerializeField] private TextMeshProUGUI textTimer = null;
-
     public delegate void ChangeSize(int x, int y, int z);
     public static event ChangeSize OnChangeSize;
 
-    Stopwatch stopwatch = Stopwatch.StartNew();
-
     void Start()
     {
-        widthSlider.onValueChanged.AddListener((v) => {
-                sliderTextWidth.text = v.ToString("0");
-                });
-        heightSlider.onValueChanged.AddListener((v) => {
-                sliderTextHeight.text = v.ToString("0");
-                });
-        depthSlider.onValueChanged.AddListener((v) => {
-                sliderTextDepth.text = v.ToString("0");
-                });
-    }
-    void Update()
-    {
-
-        //Debug.Log("Update - Time value: " + timeValue); // Add this line
-
-        DisplayTime();
-        //DisplayTime(timeValue);
+        InitializeSliders();
     }
 
-    public void DisplayTime()
-    {
-        textTimer.text = stopwatch.Elapsed.ToString(@"mm\:ss");
-    }
     public void onDifficultyButtonClick(int id)
     {
-        //Debug.Log($"Button clicked");
-        stopwatch.Reset();
-        stopwatch.Start();
         switch (id)
         {
             case 0:
-                OnChangeSize?.Invoke(8, 8, 8);
+                OnChangeSize?.Invoke(4, 4, 4);
                 break;
             case 1:
                 OnChangeSize?.Invoke(16, 16, 16);
@@ -70,6 +43,21 @@ public class UIModifier : MonoBehaviour
             default:
                 break;
         }
+    }
+    public void InitializeSliders()
+    {
+        widthSlider.onValueChanged.AddListener((v) =>
+        {
+            sliderTextWidth.text = v.ToString("0");
+        });
+        heightSlider.onValueChanged.AddListener((v) =>
+        {
+            sliderTextHeight.text = v.ToString("0");
+        });
+        depthSlider.onValueChanged.AddListener((v) =>
+        {
+            sliderTextDepth.text = v.ToString("0");
+        });
     }
 
 }

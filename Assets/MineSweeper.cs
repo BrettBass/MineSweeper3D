@@ -1,7 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
+using TMPro;
 
 public class Minesweeper : MonoBehaviour
 {
@@ -21,22 +20,27 @@ public class Minesweeper : MonoBehaviour
     public Material Tile8;
     #endregion
 
-
-    private static readonly Quaternion LOOKING_UP = Quaternion.LookRotation(new Vector3Int(0, 90, 0));
-    private static readonly Quaternion LOOKING_DOWN = Quaternion.LookRotation(new Vector3Int(0, -90, 0));
-    private static readonly Quaternion LOOKING_LEFT = Quaternion.LookRotation(new Vector3Int(90, 0, 0));
-    private static readonly Quaternion LOOKING_RIGHT = Quaternion.LookRotation(new Vector3Int(-90, 0, 0));
-    private static readonly Quaternion LOOKING_FORWARD = Quaternion.LookRotation(new Vector3Int(0, 0, -90));
-    private static readonly Quaternion LOOKING_BACKWARD = Quaternion.LookRotation(new Vector3Int(0, 0, 90));
-
-    private static readonly Quaternion[] lookingDirection = { LOOKING_FORWARD, LOOKING_RIGHT, LOOKING_BACKWARD, LOOKING_LEFT };
+    [SerializeField] private TextMeshProUGUI gameStatus = null;
+    [SerializeField] private Camera cam = null;
+    private int buffer = 5;
 
     private Box box;
     public int Width = 16, Height = 16, Depth = 16;
+    private Vector3 center = new Vector3();
+    RaycastHit tmpHitHighliht;
+    private int noneMineCount;
+    private bool gameover = false;
+
+    [SerializeField] private TextMeshProUGUI textTimer = null;
+    public float currentTime;
 
     private void OnEnable()
     {
         UIModifier.OnChangeSize += UIManager_OnChanngSize;
+    }
+    private void UpdateGameStatus(string status)
+    {
+        gameStatus.text = status;
     }
     private void UIManager_OnChanngSize(int x, int y, int z)
     {
@@ -50,12 +54,16 @@ public class Minesweeper : MonoBehaviour
     private void newGame()
     {
         box = new Box(Width, Height, Depth);
-        Camera.main.transform.position = new Vector3Int(box.Width / 2, box.Height / 2, -20 - Depth/2);
+        center = new Vector3(Width / 2f, Height / 2f, Depth / 2f);
+        buffer = Mathf.Max(Width, Height, Depth) / 4;
         CreateVoxelBox();
-        //box.voxels[new Vector3Int(1,0,0)].GetComponent<Renderer>().material = TileExploded;
+        SetupCamera();
+        noneMineCount = box.voxels.Count - box.getMineCount();
+        UpdateGameStatus(noneMineCount.ToString());
+        gameover = false;
+        ResetTimer();
     }
 
-    RaycastHit tmpHitHighliht;
     // Start is called before the first frame update
     void Start()
     {
@@ -65,120 +73,111 @@ public class Minesweeper : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        var camera = Camera.main.transform;
+        var camera = cam.transform;
 
-        //if (Input.GetMouseButton(0))
-        if (Input.GetMouseButtonUp(0))
-            if (Physics.Raycast(ray, out tmpHitHighliht, 100))
-            {
-                //Renderer renderer = tmpHitHighliht.transform.GetComponent<Renderer>();
+        if (noneMineCount <= 0)
+        {
+            Debug.Log("winner");
+            box.MarkMines(TileFlag);
+            UpdateGameStatus("Winner");
+            gameover = true;
+        }
+        if (!gameover)
+        {
+            currentTime += Time.deltaTime;
+            if (currentTime >= 3600) // an hour
+                ResetTimer();
 
-                Vector3Int position = Vector3Int.CeilToInt(tmpHitHighliht.transform.position);
-                Cell cell = box.voxels[position].GetComponent<Cell>();
-                Renderer renderer = box.voxels[position].GetComponent<Renderer>();
-                if (cell.type == Cell.Type.Mine)
+            DisplayTime(currentTime);
+
+            if (Input.GetMouseButtonUp(0))
+                if (Physics.Raycast(ray, out tmpHitHighliht, 100))
                 {
-                    Debug.Log($"We hit a bomb: {tmpHitHighliht.transform.name}");
-                    //renderer.material = TileExploded;
-                    box.voxels[position].GetComponent<Renderer>().material = TileExploded;
+                    //Renderer renderer = tmpHitHighliht.transform.GetComponent<Renderer>();
+
+                    Vector3Int position = Vector3Int.CeilToInt(tmpHitHighliht.transform.position);
+                    Cell cell = box.voxels[position].GetComponent<Cell>();
+                    Renderer renderer = box.voxels[position].GetComponent<Renderer>();
+                    if (!cell.showing && !cell.flagged)
+                    {
+                        if (cell.type == Cell.Type.Mine)
+                        {
+                            Debug.Log($"We hit a bomb: {tmpHitHighliht.transform.name}");
+                            //renderer.material = TileExploded;
+                            box.MarkMines(TileMine);
+                            box.voxels[position].GetComponent<Renderer>().material = TileExploded;
+                            UpdateGameStatus("Loser");
+                            gameover = true;
+                        }
+                        else
+                        {
+                            Debug.Log($"We didn't hit a bomb: {tmpHitHighliht.transform.name}");
+                            //cell.showing = true;
+                            // box.voxels[position].GetComponent<Cell>().showing = true;
+                            //tmpHitHighliht.transform.GetComponent<Renderer>().material = GetCube(box.voxels[position].GetComponent<Cell>());
+                            //renderer.material = GetCube(box.voxels[position].GetComponent<Cell>());
+                            Reveal(position);
+                        }
+                    }
                 }
-                else
+            if (Input.GetMouseButtonUp(1))
+                if (Physics.Raycast(ray, out tmpHitHighliht, 100))
                 {
-                    Debug.Log($"We didn't hit a bomb: {tmpHitHighliht.transform.name}");
-                    //cell.showing = true;
-                    // box.voxels[position].GetComponent<Cell>().showing = true;
-                    //tmpHitHighliht.transform.GetComponent<Renderer>().material = GetCube(box.voxels[position].GetComponent<Cell>());
-                    //renderer.material = GetCube(box.voxels[position].GetComponent<Cell>());
-                    Reveal(position);
+                    //Renderer renderer = tmpHitHighliht.transform.GetComponent<Renderer>();
+                    Vector3Int position = Vector3Int.CeilToInt(tmpHitHighliht.transform.position);
+                    Renderer renderer = box.voxels[position].GetComponent<Renderer>();
+                    Cell cell = box.voxels[position].GetComponent<Cell>();
+
+                    Debug.Log($"renderer shared material: {renderer.sharedMaterial}");
+                    Debug.Log($"TileUnkonwn material: {TileUnknown}");
+                    Debug.Log($"TileFlag material: {TileFlag}");
+
+                    if (renderer.sharedMaterial == TileUnknown)
+                        renderer.material = TileFlag;
+
+
+                    else if (renderer.sharedMaterial == TileFlag)
+                        renderer.material = TileUnknown;
+
+                    cell.flagged = !cell.flagged;
                 }
-            }
-        if (Input.GetMouseButtonUp(1))
-            if (Physics.Raycast(ray, out tmpHitHighliht, 100))
-            {
-                //Renderer renderer = tmpHitHighliht.transform.GetComponent<Renderer>();
-                Vector3Int position = Vector3Int.CeilToInt(tmpHitHighliht.transform.position);
-                Renderer renderer = box.voxels[position].GetComponent<Renderer>();
-
-                Debug.Log($"renderer shared material: {renderer.sharedMaterial}");
-                Debug.Log($"TileUnkonwn material: {TileUnknown}");
-                Debug.Log($"TileFlag material: {TileFlag}");
-
-                if (renderer.sharedMaterial == TileUnknown)
-                    renderer.material = TileFlag;
-
-                else if (renderer.sharedMaterial == TileFlag)
-                    renderer.material = TileUnknown;
-            }
-        if (Input.GetKeyUp(KeyCode.W))
-        {
-            camera.position = new Vector3(box.Width / 2, box.Height / 2, box.Depth / 2);
-
-            if (camera.rotation == LOOKING_UP)
-                camera.rotation = LOOKING_BACKWARD;
-            else if (camera.rotation == LOOKING_DOWN)
-                camera.rotation = LOOKING_FORWARD;
-            else
-                camera.rotation = LOOKING_DOWN;
-
-            camera.Translate(new Vector3Int(0, 0, -box.Width * 2));
         }
-        if (Input.GetKeyUp(KeyCode.S))
+        if (Input.GetKey(KeyCode.W))
         {
-            camera.position = new Vector3(box.Width / 2, box.Height / 2, box.Depth / 2);
+            camera.RotateAround(center, Vector3.right, 60 * Time.deltaTime);
 
-            if (camera.rotation == LOOKING_UP)
-                camera.rotation = LOOKING_FORWARD;
-            else if (camera.rotation == LOOKING_DOWN)
-                camera.rotation = LOOKING_BACKWARD;
-            else
-                camera.rotation = LOOKING_UP;
-
-            camera.Translate(new Vector3Int(0, 0, -box.Width * 2));
         }
-        if (Input.GetKeyUp(KeyCode.A))
+        if (Input.GetKey(KeyCode.S))
         {
-            camera.position = new Vector3(box.Width / 2, box.Height / 2, box.Depth / 2);
-
-            if (camera.rotation == LOOKING_UP || camera.rotation == LOOKING_DOWN)
-                camera.rotation = LOOKING_LEFT;
-            else
-                camera.rotation = NewAngle(camera.rotation, true);
-
-            camera.Translate(new Vector3Int(0, 0, -box.Width * 2));
+            camera.RotateAround(center, Vector3.left, 60 * Time.deltaTime);
         }
-        if (Input.GetKeyUp(KeyCode.D))
+        if (Input.GetKey(KeyCode.A))
         {
-
-            camera.position = new Vector3(box.Width / 2, box.Height / 2, box.Depth / 2);
-
-            if (camera.rotation == LOOKING_UP || camera.rotation == LOOKING_DOWN)
-                camera.rotation = LOOKING_RIGHT;
-            else
-                camera.rotation = NewAngle(camera.rotation, false);
-
-            camera.Translate(new Vector3Int(0, 0, -box.Width * 2));
+            camera.RotateAround(center, Vector3.up, 60 * Time.deltaTime);
+        }
+        if (Input.GetKey(KeyCode.D))
+        {
+            camera.RotateAround(center, Vector3.down, 60 * Time.deltaTime);
+        }
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            Debug.Log("Escape hit");
+            Application.Quit();
+        }
+        if (Input.GetKey(KeyCode.Space))
+        {
+            SetupCamera();
         }
 
 
 
     }
-    // I honestly hate that i wrote this cause how complex i made it but it gets the job done
-    private Quaternion NewAngle(Quaternion currentAngle, bool right)
+    private void SetupCamera()
     {
-        int newAngleIndex = 0;
-        for (; newAngleIndex < lookingDirection.Length; newAngleIndex++)
-            if (currentAngle == lookingDirection[newAngleIndex])
-                break;
-
-        newAngleIndex += right ? 1 : -1;
-        if (newAngleIndex < 0)
-            newAngleIndex = lookingDirection.Length - 1;
-        else if (newAngleIndex >= lookingDirection.Length)
-            newAngleIndex = 0;
-
-
-        return lookingDirection[newAngleIndex];
+        cam.transform.rotation = Quaternion.LookRotation(new Vector3Int(0, 0, 0));
+        cam.transform.position = new Vector3(Width / 2f - buffer, Height / 2f, -1 * Mathf.Sqrt(Mathf.Pow(Width, 2) + Mathf.Pow(Height, 2)));
     }
     public void Reveal(Vector3Int voxel)
     {
@@ -188,8 +187,11 @@ public class Minesweeper : MonoBehaviour
         if (cell.type == Cell.Type.Empty)
             Flood(voxel);
 
+        if (!cell.showing)
+            noneMineCount--;
         cell.showing = true;
         tmpHitHighliht.transform.GetComponent<Renderer>().material = GetCube(cell);
+        UpdateGameStatus(noneMineCount.ToString());
     }
     private void Flood(Vector3Int voxel)
     {
@@ -199,6 +201,7 @@ public class Minesweeper : MonoBehaviour
         Renderer renderer = box.voxels[voxel].GetComponent<Renderer>();
 
         cell.showing = true;
+        noneMineCount--;
         renderer.material = GetCube(cell);
 
         if (cell.type == Cell.Type.Empty)
@@ -249,5 +252,15 @@ public class Minesweeper : MonoBehaviour
 
             default: return null;
         }
+    }
+    private void DisplayTime(float time)
+    {
+        int minutes = Mathf.FloorToInt(time / 60);
+        int seconds = Mathf.FloorToInt(time % 60);
+        textTimer.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+    }
+    private void ResetTimer()
+    {
+        currentTime = 0;
     }
 }

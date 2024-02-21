@@ -159,7 +159,7 @@ public class Box
             if (Surface(rand.x, rand.y, rand.z) && voxels.ContainsKey(rand))
             {
                 minePositions.Add(rand);
-                Debug.Log($"Added Min at POSITION: {rand}");
+                //Debug.Log($"Added Min at POSITION: {rand}");
                 voxels[rand].GetComponent<Cell>().type = Cell.Type.Mine;
             }
         }
@@ -219,5 +219,13 @@ public class Box
         }
         voxels.Clear(); // Clear the dictionary
     }
-
+    public void MarkMines(Material material)
+    {
+        foreach (var minePosition in minePositions)
+            voxels[minePosition].GetComponent<Renderer>().material = material;
+    }
+    public int getMineCount()
+    {
+        return minePositions.Count;
+    }
 }
