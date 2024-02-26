@@ -157,21 +157,22 @@ MonoBehaviour:
   TileExploded: {fileID: 2100000, guid: 7df126613e42f0e49acdc8533435247b, type: 2}
   TileEmpty: {fileID: 2100000, guid: 3d5cf3e2eedf2734b86818b06bb6b2e7, type: 2}
   TileMine: {fileID: 2100000, guid: e7319f48ab4da1543b95363798d592e1, type: 2}
-  Tile1: {fileID: 2100000, guid: c406b9ae8edce9d4eaa612516de31aa4, type: 2}
-  Tile2: {fileID: 2100000, guid: 8c38ee72e199d304db0daf6eee875762, type: 2}
-  Tile3: {fileID: 2100000, guid: dc8a06914ab6ae44ab8f893848db0ff1, type: 2}
-  Tile4: {fileID: 2100000, guid: 0af6ee0f82b7aa84f9ced6c3a90aad5e, type: 2}
-  Tile5: {fileID: 2100000, guid: 69acb83776bb86e49aa49d96a5704521, type: 2}
-  Tile6: {fileID: 2100000, guid: a66d61924cee8e149951e01f8d876f6e, type: 2}
-  Tile7: {fileID: 2100000, guid: 5d675f3346971104288e0c0e4e71a1d9, type: 2}
-  Tile8: {fileID: 2100000, guid: 234869b67e91d8f418c6c41642b0e0e4, type: 2}
-  gameStatus: {fileID: 676992914}
-  cam: {fileID: 963194227}
+  NumberTiles:
+  - {fileID: 2100000, guid: c406b9ae8edce9d4eaa612516de31aa4, type: 2}
+  - {fileID: 2100000, guid: 8c38ee72e199d304db0daf6eee875762, type: 2}
+  - {fileID: 2100000, guid: dc8a06914ab6ae44ab8f893848db0ff1, type: 2}
+  - {fileID: 2100000, guid: 0af6ee0f82b7aa84f9ced6c3a90aad5e, type: 2}
+  - {fileID: 2100000, guid: 69acb83776bb86e49aa49d96a5704521, type: 2}
+  - {fileID: 2100000, guid: a66d61924cee8e149951e01f8d876f6e, type: 2}
+  - {fileID: 2100000, guid: 5d675f3346971104288e0c0e4e71a1d9, type: 2}
+  - {fileID: 2100000, guid: 234869b67e91d8f418c6c41642b0e0e4, type: 2}
+  gameStatusText: {fileID: 676992914}
+  mainCamera: {fileID: 963194227}
+  timerText: {fileID: 611371680}
+  currentTimeInSeconds: 0
   Width: 16
   Height: 16
   Depth: 16
-  textTimer: {fileID: 611371680}
-  currentTime: 0
 --- !u!4 &939870
 Transform:
   m_ObjectHideFlags: 0
@@ -2989,7 +2990,7 @@ GameObject:
   - component: {fileID: 624982908}
   - component: {fileID: 624982907}
   m_Layer: 5
-  m_Name: Button
+  m_Name: Text Display Area Base Color
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4563,7 +4564,7 @@ GameObject:
   - component: {fileID: 989945326}
   - component: {fileID: 989945325}
   m_Layer: 5
-  m_Name: Cloud
+  m_Name: Easy Button Base Color
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -1,10 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using System.Diagnostics;
-
 
 public class UIModifier : MonoBehaviour
 {
@@ -31,15 +27,19 @@ public class UIModifier : MonoBehaviour
             case 0:
                 OnChangeSize?.Invoke(4, 4, 4);
                 break;
+
             case 1:
                 OnChangeSize?.Invoke(16, 16, 16);
                 break;
+
             case 2:
                 OnChangeSize?.Invoke(32, 32, 32);
                 break;
+
             case 3:
                 OnChangeSize?.Invoke((int)widthSlider.value, (int)heightSlider.value, (int)depthSlider.value);
                 break;
+
             default:
                 break;
         }
